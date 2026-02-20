@@ -4,7 +4,6 @@
 .pub-cache/
 .pub/
 build/
-!build/web/
 *.iml
 *.ipr
 *.iws
@@ -25,3 +24,5 @@ build/
 # OS
 .DS_Store
 Thumbs.db
+
+# Note: public/ is NOT ignored - it contains the built Flutter web app

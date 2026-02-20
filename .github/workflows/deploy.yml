@@ -45,11 +45,34 @@ jobs:
           echo "Checking index.html exists:"
           cat build/web/index.html | head -20
 
+      - name: Copy build output to public directory
+        run: |
+          # Create public directory and copy built files
+          mkdir -p public
+          cp -r build/web/* public/
+          echo "Files copied to public/:"
+          ls -la public/ | head -10
+          echo ""
+          echo "Verifying critical files exist:"
+          test -f public/index.html && echo "✓ index.html exists" || (echo "✗ index.html missing" && exit 1)
+          test -f public/main.dart.js && echo "✓ main.dart.js exists" || (echo "✗ main.dart.js missing" && exit 1)
+          echo ""
+          echo "Total files in public/:"
+          find public -type f | wc -l
+
+      - name: Install Vercel CLI
+        run: npm install -g vercel@latest
+
+      - name: Setup Vercel project config
+        run: |
+          mkdir -p .vercel
+          echo "{\"orgId\":\"${{ secrets.VERCEL_ORG_ID }}\",\"projectId\":\"${{ secrets.VERCEL_PROJECT_ID }}\"}" > .vercel/project.json
+          echo "Project config created:"
+          cat .vercel/project.json
+
       - name: Deploy to Vercel
-        uses: amondnet/vercel-action@v25
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          vercel-args: '--prod'
-          working-directory: ./
+        run: |
+          vercel deploy --prod --token ${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
