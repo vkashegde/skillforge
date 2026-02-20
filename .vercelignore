@@ -4,6 +4,7 @@
 .pub-cache/
 .pub/
 build/
+!build/web/
 *.iml
 *.ipr
 *.iws
