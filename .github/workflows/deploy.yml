@@ -39,8 +39,11 @@ jobs:
             echo "ERROR: Build failed - index.html not found!"
             exit 1
           fi
-          echo "Build successful! Files:"
+          echo "Build successful! Files in build/web:"
           ls -la build/web/
+          echo ""
+          echo "Checking index.html exists:"
+          cat build/web/index.html | head -20
 
       - name: Deploy to Vercel
         uses: amondnet/vercel-action@v25
@@ -48,5 +51,6 @@ jobs:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          vercel-args: '--prod'
+          vercel-args: '--prod --yes'
           working-directory: ./
+          scope: ${{ secrets.VERCEL_ORG_ID }}

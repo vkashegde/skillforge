@@ -1,6 +1,8 @@
 {
   "version": 2,
+  "buildCommand": "",
   "outputDirectory": "build/web",
+  "installCommand": "",
   "rewrites": [
     {
       "source": "/(.*)",
