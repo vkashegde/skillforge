@@ -1,11 +1,9 @@
 {
   "version": 2,
-  "buildCommand": "chmod +x build.sh && ./build.sh",
   "outputDirectory": "build/web",
-  "installCommand": "echo 'Installation handled by build script'",
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/((?!.*\\.).*)$",
       "destination": "/index.html"
     }
   ],
