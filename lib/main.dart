@@ -20,9 +20,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp.router(
       title: 'Skill Forge',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.system,
+      theme: AppTheme.darkTheme,
+      themeMode: ThemeMode.dark,
       routerConfig: AppRouter.router,
     );
   }
