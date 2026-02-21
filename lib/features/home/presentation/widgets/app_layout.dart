@@ -1,0 +1,35 @@
+import 'package:flutter/material.dart';
+import 'app_sidebar.dart';
+import 'dashboard_header.dart';
+
+/// Main app layout with persistent sidebar
+class AppLayout extends StatelessWidget {
+  final Widget child;
+  final String currentRoute;
+
+  const AppLayout({super.key, required this.child, required this.currentRoute});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFF0A0A0A),
+      body: Row(
+        children: [
+          // Unified sidebar - persistent across routes
+          AppSidebar(currentRoute: currentRoute),
+          // Main content area
+          Expanded(
+            child: Column(
+              children: [
+                // Header
+                const DashboardHeader(),
+                // Content - changes based on route
+                Expanded(child: child),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
