@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'core/config/supabase_config.dart';
@@ -8,8 +9,17 @@ import 'core/theme/app_theme.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Load environment variables from .env file
-  await dotenv.load(fileName: '.env');
+  // Load environment variables from .env file (for local development only)
+  // In production builds, use --dart-define flags instead
+  try {
+    await dotenv.load(fileName: '.env');
+  } catch (e) {
+    // .env file not found - this is OK if using --dart-define in production
+    // AppConstants will use String.fromEnvironment values instead
+    if (kDebugMode) {
+      print('Warning: .env file not found. Using --dart-define values if available.');
+    }
+  }
 
   // Initialize Supabase
   await initializeSupabase();
