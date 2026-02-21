@@ -1,8 +1,38 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../../auth/presentation/utils/auth_helper.dart';
 
 /// Navigation bar for landing page
-class LandingNavbar extends StatelessWidget {
+class LandingNavbar extends StatefulWidget {
   const LandingNavbar({super.key});
+
+  @override
+  State<LandingNavbar> createState() => _LandingNavbarState();
+}
+
+class _LandingNavbarState extends State<LandingNavbar> {
+  bool _isLoggedIn = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkAuthState();
+    // Listen to auth state changes
+    Supabase.instance.client.auth.onAuthStateChange.listen((data) {
+      if (mounted) {
+        setState(() {
+          _isLoggedIn = data.session != null;
+        });
+      }
+    });
+  }
+
+  void _checkAuthState() {
+    setState(() {
+      _isLoggedIn = AuthHelper.isLoggedIn();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,10 +82,24 @@ class LandingNavbar extends StatelessWidget {
                   const SizedBox(width: 32),
                   _NavLink(text: 'Pricing'),
                   const SizedBox(width: 32),
-                  _NavLink(text: 'Login'),
+                  _isLoggedIn
+                      ? _NavLink(
+                          text: 'Dashboard',
+                          onTap: () => context.go('/home'),
+                        )
+                      : _NavLink(
+                          text: 'Login',
+                          onTap: () => context.go('/login'),
+                        ),
                   const SizedBox(width: 24),
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      if (_isLoggedIn) {
+                        context.go('/home');
+                      } else {
+                        context.go('/signup');
+                      }
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF9333EA),
                       foregroundColor: Colors.white,
@@ -67,7 +111,7 @@ class LandingNavbar extends StatelessWidget {
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    child: const Text('Start Learning'),
+                    child: Text(_isLoggedIn ? 'Go to Dashboard' : 'Start Learning'),
                   ),
                 ],
               ),
@@ -81,13 +125,14 @@ class LandingNavbar extends StatelessWidget {
 
 class _NavLink extends StatelessWidget {
   final String text;
+  final VoidCallback? onTap;
 
-  const _NavLink({required this.text});
+  const _NavLink({required this.text, this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return TextButton(
-      onPressed: () {},
+      onPressed: onTap,
       style: TextButton.styleFrom(
         foregroundColor: Colors.white,
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
