@@ -11,6 +11,7 @@ import '../../features/onboarding/presentation/pages/onboarding_time_commitment_
 import '../../features/onboarding/presentation/pages/onboarding_summary_page.dart';
 import '../../features/topics/presentation/pages/topic_content.dart';
 import '../../features/auth/presentation/utils/auth_helper.dart';
+import '../../features/practice_labs/presentation/pages/practice_labs_page.dart';
 
 /// Application router configuration
 class AppRouter {
@@ -107,6 +108,23 @@ class AppRouter {
                 slug: slug,
               );
             },
+          ),
+          GoRoute(
+            path: '/app/practice',
+            name: 'app-practice',
+            builder: (context, state) {
+              return const PracticeLabsPage();
+            },
+            routes: [
+              GoRoute(
+                path: ':problemId',
+                name: 'app-practice-problem',
+                builder: (context, state) {
+                  final problemId = state.pathParameters['problemId'];
+                  return PracticeLabsPage(problemId: problemId);
+                },
+              ),
+            ],
           ),
         ],
       ),

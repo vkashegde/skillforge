@@ -99,7 +99,8 @@ class DashboardSidebar extends StatelessWidget {
                 _NavItem(
                   icon: Icons.code,
                   label: 'Practice Lab',
-                  onTap: () {},
+                  isActive: currentRoute.startsWith('/app/practice'),
+                  onTap: () => context.go('/app/practice'),
                 ),
                 _NavItem(
                   icon: Icons.refresh,

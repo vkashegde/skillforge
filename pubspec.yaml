@@ -37,6 +37,19 @@ dependencies:
   
   # Environment Variables
   flutter_dotenv: ^5.1.0
+  
+  # Code Editor
+  flutter_code_editor: ^0.3.3
+  code_text_field: ^1.1.0
+  
+  # Code Execution
+  js: ^0.7.1
+  
+  # HTTP Client
+  http: ^1.1.0
+  
+  # AI Integration
+  google_generative_ai: ^0.4.0
 
 dev_dependencies:
   flutter_test:

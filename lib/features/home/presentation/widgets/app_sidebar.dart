@@ -4,10 +4,14 @@ import 'package:go_router/go_router.dart';
 /// Unified sidebar navigation for the entire app
 class AppSidebar extends StatefulWidget {
   final String currentRoute;
+  final bool isCollapsed;
+  final VoidCallback onToggle;
 
   const AppSidebar({
     super.key,
     required this.currentRoute,
+    required this.isCollapsed,
+    required this.onToggle,
   });
 
   @override
@@ -47,75 +51,90 @@ class _AppSidebarState extends State<AppSidebar> {
     final selectedTopicSlug = _getTopicSlugFromRoute();
     final isTheoryRoute = widget.currentRoute.startsWith('/app/theory');
 
-    return Container(
-      width: 280,
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+      width: widget.isCollapsed ? 80 : 280,
       color: const Color(0xFF0A0A0A),
       child: Column(
         children: [
           // Logo section
           Padding(
-            padding: const EdgeInsets.all(24),
+            padding: EdgeInsets.all(widget.isCollapsed ? 16 : 24),
             child: Column(
               children: [
                 Row(
                   children: [
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF9333EA),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Icon(
-                        Icons.play_arrow,
-                        color: Colors.white,
-                        size: 24,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    const Expanded(
-                      child: Text(
-                        'DSA Mentor AI',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
+                    // Container(
+                    //   width: 40,
+                    //   height: 40,
+                    //   decoration: BoxDecoration(
+                    //     color: const Color(0xFF9333EA),
+                    //     borderRadius: BorderRadius.circular(8),
+                    //   ),
+                    //   child: const Icon(Icons.play_arrow, color: Colors.white, size: 24),
+                    // ),
+                    if (!widget.isCollapsed) ...[
+                      // const SizedBox(width: 12),
+                      // const Expanded(
+                      //   child: Text(
+                      //     'DSA Mentor AI',
+                      //     style: TextStyle(
+                      //       color: Colors.white,
+                      //       fontSize: 20,
+                      //       fontWeight: FontWeight.bold,
+                      //     ),
+                      //   ),
+                      // ),
+                    ],
+                    if (widget.isCollapsed) const Spacer(),
                   ],
                 ),
-                const SizedBox(height: 12),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF9333EA).withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(6),
-                    border: Border.all(
-                      color: const Color(0xFF9333EA),
-                      width: 1,
-                    ),
-                  ),
-                  child: const Text(
-                    'PREMIUM ACCESS',
-                    style: TextStyle(
-                      color: Color(0xFF9333EA),
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 0.5,
-                    ),
-                  ),
-                ),
+                if (!widget.isCollapsed) ...[
+                  // const SizedBox(height: 12),
+                  // Container(
+                  //   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  //   decoration: BoxDecoration(
+                  //     color: const Color(0xFF9333EA).withOpacity(0.2),
+                  //     borderRadius: BorderRadius.circular(6),
+                  //     border: Border.all(color: const Color(0xFF9333EA), width: 1),
+                  //   ),
+                  //   child: const Text(
+                  //     'PREMIUM ACCESS',
+                  //     style: TextStyle(
+                  //       color: Color(0xFF9333EA),
+                  //       fontSize: 11,
+                  //       fontWeight: FontWeight.bold,
+                  //       letterSpacing: 0.5,
+                  //     ),
+                  //   ),
+                  // ),
+                ],
               ],
             ),
           ),
-          const Divider(
-            color: Color(0xFF2A2A2A),
-            height: 1,
+          // Toggle button
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: InkWell(
+              onTap: widget.onToggle,
+              borderRadius: BorderRadius.circular(8),
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.grey[900],
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  widget.isCollapsed ? Icons.chevron_right : Icons.chevron_left,
+                  color: Colors.grey[400],
+                  size: 20,
+                ),
+              ),
+            ),
           ),
+          const SizedBox(height: 8),
+          const Divider(color: Color(0xFF2A2A2A), height: 1),
           // Navigation links
           Expanded(
             child: ListView(
@@ -125,6 +144,7 @@ class _AppSidebarState extends State<AppSidebar> {
                   icon: Icons.dashboard,
                   label: 'Dashboard',
                   isActive: widget.currentRoute == '/app/home',
+                  isCollapsed: widget.isCollapsed,
                   onTap: () => context.go('/app/home'),
                 ),
                 _NavItem(
@@ -132,13 +152,18 @@ class _AppSidebarState extends State<AppSidebar> {
                   label: 'Theory',
                   isActive: isTheoryRoute,
                   isExpandable: true,
-                  isExpanded: _isTheoryExpanded,
+                  isExpanded: _isTheoryExpanded && !widget.isCollapsed,
+                  isCollapsed: widget.isCollapsed,
                   onTap: () {
-                    setState(() {
-                      _isTheoryExpanded = !_isTheoryExpanded;
-                    });
+                    if (widget.isCollapsed) {
+                      widget.onToggle();
+                    } else {
+                      setState(() {
+                        _isTheoryExpanded = !_isTheoryExpanded;
+                      });
+                    }
                   },
-                  children: _isTheoryExpanded
+                  children: _isTheoryExpanded && !widget.isCollapsed
                       ? [
                           _SectionHeader(label: 'DATA STRUCTURES'),
                           _SubNavItem(
@@ -215,36 +240,39 @@ class _AppSidebarState extends State<AppSidebar> {
                 _NavItem(
                   icon: Icons.code,
                   label: 'Practice Lab',
-                  onTap: () {},
+                  isActive: widget.currentRoute.startsWith('/app/practice'),
+                  isCollapsed: widget.isCollapsed,
+                  onTap: () => context.go('/app/practice'),
                 ),
                 _NavItem(
                   icon: Icons.refresh,
                   label: 'Smart Revision',
+                  isCollapsed: widget.isCollapsed,
                   onTap: () {},
                 ),
                 _NavItem(
                   icon: Icons.psychology,
                   label: 'AI Mentor',
+                  isCollapsed: widget.isCollapsed,
                   onTap: () {},
                 ),
                 _NavItem(
                   icon: Icons.people,
                   label: 'Community',
+                  isCollapsed: widget.isCollapsed,
                   onTap: () {},
                 ),
               ],
             ),
           ),
           // Settings
-          const Divider(
-            color: Color(0xFF2A2A2A),
-            height: 1,
-          ),
+          const Divider(color: Color(0xFF2A2A2A), height: 1),
           Padding(
             padding: const EdgeInsets.all(16),
             child: _NavItem(
               icon: Icons.settings,
               label: 'Settings',
+              isCollapsed: widget.isCollapsed,
               onTap: () {},
             ),
           ),
@@ -260,6 +288,7 @@ class _NavItem extends StatelessWidget {
   final bool isActive;
   final bool isExpandable;
   final bool isExpanded;
+  final bool isCollapsed;
   final VoidCallback onTap;
   final List<Widget>? children;
 
@@ -269,68 +298,66 @@ class _NavItem extends StatelessWidget {
     this.isActive = false,
     this.isExpandable = false,
     this.isExpanded = false,
+    this.isCollapsed = false,
     required this.onTap,
     this.children,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    final content = Column(
       children: [
         InkWell(
           onTap: onTap,
           child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            margin: EdgeInsets.symmetric(horizontal: isCollapsed ? 8 : 12, vertical: 4),
+            padding: EdgeInsets.symmetric(horizontal: isCollapsed ? 12 : 16, vertical: 12),
             decoration: BoxDecoration(
-              color: isActive
-                  ? const Color(0xFF9333EA).withOpacity(0.15)
-                  : Colors.transparent,
+              color: isActive ? const Color(0xFF9333EA).withOpacity(0.15) : Colors.transparent,
               borderRadius: BorderRadius.circular(8),
-              border: isActive
-                  ? Border.all(
-                      color: const Color(0xFF9333EA),
-                      width: 1,
-                    )
-                  : null,
+              border: isActive ? Border.all(color: const Color(0xFF9333EA), width: 1) : null,
             ),
             child: Row(
+              mainAxisAlignment: isCollapsed ? MainAxisAlignment.center : MainAxisAlignment.start,
               children: [
                 Icon(
                   icon,
-                  color: isActive
-                      ? const Color(0xFF9333EA)
-                      : const Color(0xFFA0A0A0),
+                  color: isActive ? const Color(0xFF9333EA) : const Color(0xFFA0A0A0),
                   size: 20,
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    label,
-                    style: TextStyle(
-                      color: isActive
-                          ? const Color(0xFF9333EA)
-                          : const Color(0xFFA0A0A0),
-                      fontSize: 14,
-                      fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
+                if (!isCollapsed) ...[
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      label,
+                      style: TextStyle(
+                        color: isActive ? const Color(0xFF9333EA) : const Color(0xFFA0A0A0),
+                        fontSize: 14,
+                        fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
+                      ),
                     ),
                   ),
-                ),
-                if (isExpandable)
+                ],
+                if (isExpandable && !isCollapsed)
                   Icon(
                     isExpanded ? Icons.expand_less : Icons.expand_more,
-                    color: isActive
-                        ? const Color(0xFF9333EA)
-                        : const Color(0xFFA0A0A0),
+                    color: isActive ? const Color(0xFF9333EA) : const Color(0xFFA0A0A0),
                     size: 20,
                   ),
               ],
             ),
           ),
         ),
-        if (isExpanded && children != null) ...children!,
+        if (isExpanded && children != null && !isCollapsed) ...children!,
       ],
     );
+
+    // Add tooltip when collapsed
+    if (isCollapsed) {
+      return Tooltip(message: label, child: content);
+    }
+
+    return content;
   }
 }
 
@@ -377,16 +404,9 @@ class _SubNavItem extends StatelessWidget {
         margin: const EdgeInsets.only(left: 48, right: 12, bottom: 4),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected
-              ? const Color(0xFF9333EA).withOpacity(0.15)
-              : Colors.transparent,
+          color: isSelected ? const Color(0xFF9333EA).withOpacity(0.15) : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
-          border: isSelected
-              ? Border.all(
-                  color: const Color(0xFF9333EA),
-                  width: 1,
-                )
-              : null,
+          border: isSelected ? Border.all(color: const Color(0xFF9333EA), width: 1) : null,
         ),
         child: Row(
           children: [
@@ -394,20 +414,13 @@ class _SubNavItem extends StatelessWidget {
               child: Text(
                 label,
                 style: TextStyle(
-                  color: isSelected
-                      ? const Color(0xFF9333EA)
-                      : const Color(0xFFA0A0A0),
+                  color: isSelected ? const Color(0xFF9333EA) : const Color(0xFFA0A0A0),
                   fontSize: 14,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                 ),
               ),
             ),
-            if (isSelected)
-              const Icon(
-                Icons.arrow_forward_ios,
-                color: Color(0xFF9333EA),
-                size: 14,
-              ),
+            if (isSelected) const Icon(Icons.arrow_forward_ios, color: Color(0xFF9333EA), size: 14),
           ],
         ),
       ),
